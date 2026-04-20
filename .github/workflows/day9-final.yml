@@ -1,0 +1,53 @@
+name: Day 9 - Final Exam Workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install
+        run: npm install
+        working-directory: app
+
+      - name: Test
+        run: npm test
+        working-directory: app
+
+      - name: Create build info
+        run: echo "Node ${{ matrix.node-version }} - $(date)" > build-info.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.node-version }}
+          path: build-info.txt
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Deploy simulation
+        run: echo "Deploy successful 🚀"
