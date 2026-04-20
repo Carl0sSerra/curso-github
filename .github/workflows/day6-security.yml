@@ -1,0 +1,17 @@
+name: Day 6 - Security
+
+on:
+  push:
+
+jobs:
+  secure-job:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Show secret safely
+        run: echo "Secret is configured (not displayed)"
+        env:
+          MY_SECRET: ${{ secrets.MY_SECRET }}
